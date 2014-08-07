@@ -18,7 +18,7 @@
 
   You should have received a copy of the GNU Lesser General Public License
   along with GLCD.  If not, see <http://www.gnu.org/licenses/>.
-  
+
 */
 
 #ifndef	GTEXT_H
@@ -28,9 +28,14 @@
 #include <avr/pgmspace.h>
 
 #include "WString.h"
-#include "include/Streaming.h" 
+#include "include/Streaming.h"
 #include "include/glcd_Device.h"
 
+#ifndef _BV
+#define _BV(bit) (1 << (bit))
+#endif
+
+#define GLCD_NO_PRINTF
 
 #define GTEXT_VERSION 1 // software version of this code
 
@@ -60,7 +65,7 @@ typedef class _FlashString {} *FLASHSTRING;
  *
  * This allows the creatation of an unlmited number of predefined areas with zero code or
  * data space overhead.
- * 
+ *
  * A macro is used to create the tokens from a set of x1,y1 x2,y2 coordinates.
  *
  * A union is used to extract the coordinates from the 32 bit token.
@@ -72,20 +77,20 @@ typedef class _FlashString {} *FLASHSTRING;
 
 #define MK_TareaToken(x1, y1, x2, y2) \
 	(uint32_t) (((uint32_t) (x1) << 24) | ((uint32_t)(y1) << 16) | ((uint32_t)(x2) << 8) | (uint32_t)(y2))
-        
+
 /// @cond hide_from_doxygen
 typedef union
-{       
+{
  struct
- {      
+ {
         uint8_t y2;
         uint8_t x2;
         uint8_t y1;
         uint8_t x1;
  }coord;
-        
+
  uint32_t token; // swap byte order above for big endian
-        
+
 }TareaToken;
 /// @endcond
 
@@ -93,7 +98,7 @@ typedef uint8_t textMode;  // type holding mode for scrolling and future attribu
 // the only textMode supported in the current release is scrolling
 
 const textMode SCROLL_UP = 0;
-const textMode SCROLL_DOWN = 1; // this was changed from -1 so it can used in a bitmask 
+const textMode SCROLL_DOWN = 1; // this was changed from -1 so it can used in a bitmask
 const textMode DEFAULT_SCROLLDIR = SCROLL_UP;
 
 /**
@@ -105,7 +110,7 @@ const textMode DEFAULT_SCROLLDIR = SCROLL_UP;
  * @hideinitializer
  * @brief Pre Defined Text areas
  *
- * These enumerations are used to easily define text areas 
+ * These enumerations are used to easily define text areas
  * using predefined display areas.\n
  * They are used with the
  * \ref gText::DefineArea(predefinedArea selection, textMode mode) "DefineArea()" function call.
@@ -146,7 +151,7 @@ typedef enum  {
 /*
   * enums for ansi style erase function
   * These values match the ANSI EraseInLine terminal primitive: CSI n K
-*/  
+*/
 /**
  * @ingroup glcd_enum
  * @hideinitializer
@@ -164,7 +169,7 @@ enum eraseLine_t {
 	eraseFULL_LINE	/**< Erase Entire line */
 	};
 
-typedef const uint8_t* Font_t;  	
+typedef const uint8_t* Font_t;
 typedef uint8_t (*FontCallback)(Font_t);
 
 uint8_t ReadPgmData(const uint8_t* ptr);	//Standard Read Callback
@@ -186,11 +191,11 @@ struct tarea
  * @class gText
  * @brief Functions for Text Areas
  * @details
- * A text area acts like a terminal monitor and text output is displayed 
+ * A text area acts like a terminal monitor and text output is displayed
  * within the confines of a rectangle given in the DefineArea command.
  * All of the following text area functions operate on a user defined text area.
  */
-  
+
  // graphical device text routines
 class gText : public glcd_Device
 {
@@ -214,7 +219,7 @@ class gText : public glcd_Device
   public:
 	gText(); // default - uses the entire display
 	gText(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, textMode mode=DEFAULT_SCROLLDIR);
-	// 4 Feb - added two constuctors (and SetFontColor below) 
+	// 4 Feb - added two constuctors (and SetFontColor below)
 	gText(predefinedArea selection, textMode mode=DEFAULT_SCROLLDIR);
 	gText(uint8_t x1, uint8_t y1, uint8_t columns, uint8_t rows, Font_t font, textMode mode=DEFAULT_SCROLLDIR);
 
@@ -257,18 +262,18 @@ class gText : public glcd_Device
 	uint16_t StringWidth_P(PGM_P str);
 	uint16_t StringWidth_P(String &str);
 
-	void EraseTextLine( eraseLine_t type=eraseTO_EOL); //ansi like line erase function 
+	void EraseTextLine( eraseLine_t type=eraseTO_EOL); //ansi like line erase function
 	void EraseTextLine( uint8_t row); // erase the entire text line in the given row and move cursor to left position
 
-    // legacy text output functions 
+    // legacy text output functions
 	void PrintNumber(long n);
 
-#ifndef USE_ARDUINO_FLASHSTR	
+#ifndef USE_ARDUINO_FLASHSTR
 	// when the following function is supported in arduino it will be removed from this library
 	void printFlash(FLASHSTRING str); //this overrides the Arduino print function to implicilty store the string in flash (progmem)
     void printFlashln(FLASHSTRING str);
 #endif
-	
+
 #ifndef GLCD_NO_PRINTF
 	void Printf(const char *format, ...);
 	void Printf_P(const char *format, ...);

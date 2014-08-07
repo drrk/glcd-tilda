@@ -3,7 +3,7 @@
   Copyright (c) 2009, 2010 Michael Margolis and Bill Perry
 
   vi:ts=4
-  
+
   This file is part of the Arduino GLCD library.
 
   GLCD is free software: you can redistribute it and/or modify
@@ -21,23 +21,24 @@
 
   the glcd_Device class impliments the protocol for sending and receiving data and commands to a GLCD device.
 
-  
+
 */
 
 #ifndef	GLCD_DEVICE_H
 #define GLCD_DEVICE_H
 
-#include "glcd_Config.h"
 
 #if defined WIRING
 #include <WPrint.h> // used when deriving this class in Wiring
 #else
-#include "Print.h" // used when deriving this class in Arduino 
+#include "Print.h" // used when deriving this class in Arduino
 #endif
 
 
 #define GLCD_Device 1 // software version of this class
 
+#define DISPLAY_WIDTH 128
+#define DISPLAY_HEIGHT 64
 
 // useful user constants
 #define NON_INVERTED false
@@ -51,35 +52,29 @@
 typedef struct {
 	uint8_t x;
 	uint8_t y;
-	struct {
-#ifdef GLCD_XCOL_SUPPORT
-		uint8_t col;
-#endif
-		uint8_t page;
-	} chip[glcd_CHIP_COUNT];
 } lcdCoord;
 /// @endcond
-	
+
 /*
- * Note that all data in glcd_Device is static so that all derived instances  
+ * Note that all data in glcd_Device is static so that all derived instances
  * (gText instances for example) share the same device state.
  * Any added data fields should also be static unless there is explicit reason
- * to not share the field among the instances 
+ * to not share the field among the instances
  */
- 
+
 /**
  * @class glcd_Device
  * @brief Low level device functions
- * 
+ *
  */
-class glcd_Device : public Print   
+class glcd_Device : public Print
 {
   private:
   // Control functions
 	uint8_t DoReadData(void);
 	void WriteCommand(uint8_t cmd, uint8_t chip);
 	inline void Enable(void);
-	inline void SelectChip(uint8_t chip); 
+	inline void SelectChip(uint8_t chip);
 	void WaitReady(uint8_t chip);
 	uint8_t GetStatus(uint8_t chip);
 #if ARDUINO < 100
@@ -87,19 +82,23 @@ class glcd_Device : public Print
 #else
 	size_t write(uint8_t); // for Print base class
 #endif
-	
+    void st7565_command(uint8_t);
+    void st7565_data(uint8_t);
+    void st7565_set_brightness(uint8_t);
+
   public:
     glcd_Device();
-	protected: 
+		void display();
+	protected:
     int Init(uint8_t invert = false);      // now public, default is non-inverted
 	void SetDot(uint8_t x, uint8_t y, uint8_t color);
 	void SetPixels(uint8_t x, uint8_t y,uint8_t x1, uint8_t y1, uint8_t color);
     uint8_t ReadData(void);        // now public
-    void WriteData(uint8_t data); 
+    void WriteData(uint8_t data);
 
-  	void GotoXY(uint8_t x, uint8_t y);   
-    static lcdCoord	  	Coord;  
-	static uint8_t	 	Inverted; 
+  	void GotoXY(uint8_t x, uint8_t y);
+    static lcdCoord	  	Coord;
+	static uint8_t	 	Inverted;
 };
-  
+
 #endif
