@@ -24,6 +24,3 @@ the license below shall apply.
   along with GLCD.  If not, see <http://www.gnu.org/licenses/>.
 
 ==============================================================================
-Note that avrio.h is not LGPL but is available for use under the terms of
-the LGPL as long it is used with the GLCD library in the Arduino software environment.
-For use outside the Arduino GLCD library, see the avrio.h file for details.
